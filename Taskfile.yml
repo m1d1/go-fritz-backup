@@ -1,0 +1,56 @@
+# https://taskfile.dev
+version: '3'
+
+includes:
+  deploy:
+    taskfile: ./Taskfile.deploy.yml
+    optional: true
+  github:
+    taskfile: ./Taskfile.github.yml
+    optional: true
+
+vars:
+  GO_FILE: go-fritz-backup
+  BUILD_DATE:
+    sh:  date --iso-8601=seconds
+  VERSION:
+    sh: git tag | sort -V | tail -1
+  GO_FLAGS: -a -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.BUILD_DATE}}"
+
+tasks:
+  default:
+    #dir: ~/go/src/github.com/m1d1/go-fritz-backup
+    desc: build-all
+    silent: true
+    cmds:
+      - echo 'building go-fritz-backup binaries'
+      - export GOPROXY=https://proxy.golang.org
+      - export GOSUMDB=sum.golang.org
+      - echo 'updating go modules'
+      - go get -u all
+      - VERSION={{.VERSION}} BUILDDATE={{.BUILD_DATE}} goreleaser build --snapshot --clean 
+      #- task: sec
+      - echo 'done! All files are in ./dist/'
+    preconditions: 
+      - sh: 'which gosec'
+        msg: "install gosec"
+
+  release:
+    desc: release binaries to github.com
+    cmds:
+      - task: github:assets-release
+
+  sec:
+    desc: go security scan
+    cmds:
+      - go install github.com/securego/gosec/v2/cmd/gosec@latest
+      - gosec -fmt=json -out=golang-securitychecker-results.json ./...
+
+  clear-cache:
+    desc: clear go cache
+    cmds:
+      - go clean -cache
+      - go clean -testcache
+      - go clean -fuzzcache
+      - go clean -modcache
+      

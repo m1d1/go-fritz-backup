@@ -1,0 +1,7 @@
+_backup/
+go-fritz-backup.yml
+settings.yml
+Taskfile.*.yml
+dist/
+.goreleaser.yaml
+backup-config.yml

@@ -1,0 +1,19 @@
+# go-fritz-backup settings file
+# put backup-config.yml in the same directory as the binary
+
+device:
+  host: "192.168.178.1:49000" # default tr-064 port 49000
+  username: "fritz1090"   # 7490 default-user
+  password: "secret"
+
+export:
+  password: "secret"
+  phone_books: true
+  phone_assets: true
+  phone_barringlist: true
+
+backup:
+  target_path: "C:\\temp\\fritz" #windows path. # use \\ for single backslash!
+  #target_path: "/backup" # linux
+
+ 
